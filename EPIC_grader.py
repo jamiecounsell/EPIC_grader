@@ -1,6 +1,6 @@
 from Tkinter import *
 from epic_error import *
-import tkFileDialog, csv
+import tkFileDialog, csv, os
 
 
 class Grader(Frame):
@@ -11,6 +11,8 @@ class Grader(Frame):
         self.ERROR_SOUND = "audio/error.wav"
         self.student_data = {}
         self.fname = None
+        self.fname_readable = StringVar()
+        self.fname_readable.set("No file selected.")
 
         # Pack original frame
         self.pack()
@@ -28,20 +30,25 @@ class Grader(Frame):
         footer.pack(padx=10, pady=10)
 
         # File prompt information
-        file_prompt = Label(header, text="Open grade file:") 
-        open_file_button = Button(header, command=self.openFile, text="Open...")
+        openframe = Frame(header)
+        openframe.pack()
+
+        file_prompt = Label(openframe, text="Open grade file:") 
+        open_file_button = Button(openframe, command=self.openFile, text="Open...")
         
+        self.filename_label = Label(header, textvariable=self.fname_readable, fg="#AAA")
+
         # Student number entry
         student_num_entry_prompt = Label(body1, text="Student Number") 
-        self.student_num_entry  = Entry(body1)
+        self.student_num_entry  = Entry(body1, width=9)
         student_num_entry_prompt.pack(side="left")
         self.student_num_entry.pack(side="right")
 
         # Grade entry
         grade_entry_prompt = Label(body2, text="Grade")
-        self.grade_entry   = Entry(body2, width=3)
+        self.grade_entry   = Entry(body2, width=9)
         grade_entry_prompt.pack(side="left")
-        self.grade_entry.pack(side="right")
+        self.grade_entry.pack(side="right", padx=(62,0))
 
         self.student_no = StringVar()
         self.grade      = StringVar()
@@ -73,10 +80,9 @@ class Grader(Frame):
         self.info_block_label.foreground = "red"
         self.info_block_label.pack()
 
-
         file_prompt.pack(side="left")
         open_file_button.pack(side="right")
-
+        self.filename_label.pack()
 
         self.enter.pack()
 
@@ -119,9 +125,11 @@ class Grader(Frame):
         
         self.student_no.set("")
     def openFile(self):
+
         self.student_data = {}
 
         self.fname = tkFileDialog.askopenfilename(filetypes=[('.csv', '.csv')])
+        self.fname_readable.set(self.fname.split(os.sep)[-1])
 
         with open(self.fname, 'rb') as csvfile:
              reader = csv.reader(csvfile, delimiter=',')
@@ -144,8 +152,8 @@ class Grader(Frame):
 grader = Grader()
 
 grader.master.title("EPIC Grader")
-grader.master.maxsize(260, 200)
-grader.master.minsize(260, 200)
+grader.master.maxsize(270, 230)
+grader.master.minsize(270, 230)
 
 # start the program
 grader.mainloop()
