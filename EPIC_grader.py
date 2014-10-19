@@ -84,7 +84,7 @@ class Grader(Frame):
         open_file_button.pack(side="right")
         self.filename_label.pack()
 
-        self.enter.pack()
+        self.enter.pack(pady=(10,0))
 
 
     def enterGrade(self, event=None):
