@@ -3,13 +3,14 @@ from epic_error import *
 import tkFileDialog, csv
 
 
-class App(Frame):
+class Grader(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
 
         # Set defaults
         self.ERROR_SOUND = "audio/error.wav"
         self.student_data = {}
+        self.fname = None
 
         # Pack original frame
         self.pack()
@@ -86,11 +87,16 @@ class App(Frame):
             NO_STUDENT_NO.alert()
             self.info_block_label.config(fg="#EE4000")
             self.info_block_data.set(NO_STUDENT_NO.description)
+
+        elif not self.student_data:
+            NO_DATA.alert()
+            self.info_block_label.config(fg="#EE4000")
+            self.info_block_data.set(NO_DATA.description)
     	
         else:
             try:
-                old_value = self.student_data[int(student_number)]
-                self.student_data[int(student_number)] = self.grade.get()
+                old_value = self.student_data[str(student_number)]
+                self.student_data[str(student_number)] = self.grade.get()
                 if old_value not in [0, "", '', None]:
                     self.info_block_label.config(fg="#FFA824")
                     self.info_block_data.set("Warning: Overwriting grade for %s." % (student_number))
@@ -99,33 +105,47 @@ class App(Frame):
                     self.info_block_label.config(fg="#9ACD32")
                     self.info_block_data.set("Student %s updated." % (student_number))
                 self.records_processed_num.set(str(int(self.records_processed_num.get()) + 1))
+
             except Exception as e:
                 print e
                 BAD_STUDENT_NO.alert()
                 self.info_block_label.config(fg="#EE4000")
                 self.info_block_data.set(BAD_STUDENT_NO.description)
-
+            
+            try:
+                self.saveFile()
+            except Exception as e:
+                print e
+        
         self.student_no.set("")
     def openFile(self):
-        f = tkFileDialog.askopenfilename(filetypes=[('.csv', '.csv')])
+        self.student_data = {}
 
-        with open(f, 'rb') as csvfile:
+        self.fname = tkFileDialog.askopenfilename(filetypes=[('.csv', '.csv')])
+
+        with open(self.fname, 'rb') as csvfile:
              reader = csv.reader(csvfile, delimiter=',')
              for row in reader:
                 try:
-                    self.student_data[int(row[0].strip("#"))] = row[1]
+                    self.student_data[str(row[0].strip("#"))] = row[1]
                 except Exception as e:
                     pass
 
     def saveFile(self):
-        pass
+        data_list = [["#"+str(key), self.student_data[key], "#"] for key in sorted(self.student_data.keys())]
+
+        if self.fname:
+            with open(self.fname, 'wb') as f:
+                writer = csv.writer(f)
+                writer.writerows(data_list)
 
 
 
-myapp = App()
+grader = Grader()
 
-myapp.master.title("EPIC Grader")
-myapp.master.maxsize(500, 500)
+grader.master.title("EPIC Grader")
+grader.master.maxsize(260, 200)
+grader.master.minsize(260, 200)
 
 # start the program
-myapp.mainloop()
+grader.mainloop()

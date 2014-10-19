@@ -24,3 +24,4 @@ class Error():
 
 NO_STUDENT_NO = Error("001", "You must enter a student number.")
 BAD_STUDENT_NO = Error("002", "Student with this student number not found.")
+NO_DATA			= Error("003", "You must open a valid grade file.")
